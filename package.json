@@ -1,0 +1,12 @@
+{
+  "name": "hobbes-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the Hobbes API, generated from their published OpenAPI spec, with a client-side policy gate on mutating operations.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "hobbes-mcp": "./dist/index.js" },
+  "engines": { "node": ">=20" },
+  "scripts": { "build": "tsc && cp src/tools.json dist/", "start": "node dist/index.js", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0" },
+  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.6.0" }
+}

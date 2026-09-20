@@ -1,0 +1,829 @@
+[
+ {
+  "name": "hobbes_v1_create_custom_links",
+  "method": "POST",
+  "path": "/api/v1/custom-links",
+  "summary": "Create Custom Links",
+  "desc": "Validate and accept 1-500 Custom Links as one asynchronous job. Requires an `Idempotency-Key` header. Automatic logo resolution runs independently of preview rendering when enabled. `generateThumbnails` defaults to true; false disables only preview rendering. ",
+  "tag": "Custom Links",
+  "params": [
+   {
+    "name": "Idempotency-Key",
+    "in": "header",
+    "required": true,
+    "desc": ""
+   }
+  ],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_list_custom_links",
+  "method": "GET",
+  "path": "/api/v1/custom-links",
+  "summary": "List Custom Links",
+  "desc": "Return a paginated, filterable list of Custom Links in the key's organization.",
+  "tag": "Custom Links",
+  "params": [
+   {
+    "name": "campaign_id",
+    "in": "query",
+    "required": false,
+    "desc": "Custom Link campaign UUID."
+   },
+   {
+    "name": "active",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "external_id",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "email",
+    "in": "query",
+    "required": false,
+    "desc": "Exact prospect email address. URL-encode reserved characters."
+   },
+   {
+    "name": "company",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "search",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "date_from",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "date_to",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "engagement_stage",
+    "in": "query",
+    "required": false,
+    "desc": "Filter Custom Links by their monotonic not_opened, opened, started, or engaged stage."
+   },
+   {
+    "name": "sort",
+    "in": "query",
+    "required": false,
+    "desc": "Sort by created_at or last_activity_at."
+   },
+   {
+    "name": "order",
+    "in": "query",
+    "required": false,
+    "desc": "Sort direction: asc or desc."
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_apply_custom_link_action",
+  "method": "POST",
+  "path": "/api/v1/custom-links/actions",
+  "summary": "Apply a bulk action",
+  "desc": "Activate, deactivate, or move up to 500 Custom Links.",
+  "tag": "Custom Links",
+  "params": [],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_get_custom_link",
+  "method": "GET",
+  "path": "/api/v1/custom-links/{link_id}",
+  "summary": "Retrieve a Custom Link",
+  "desc": "Return one Custom Link with its thumbnail state and Opened \u2192 Started \u2192 Engaged rollup.",
+  "tag": "Custom Links",
+  "params": [
+   {
+    "name": "link_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link UUID."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_update_custom_link",
+  "method": "PATCH",
+  "path": "/api/v1/custom-links/{link_id}",
+  "summary": "Update a Custom Link",
+  "desc": "Update personalization, sharing metadata, campaign membership, or active state. Thumbnail work is queued only when required; thumbnail-affecting updates require an `Idempotency-Key` header.",
+  "tag": "Custom Links",
+  "params": [
+   {
+    "name": "link_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link UUID."
+   },
+   {
+    "name": "Idempotency-Key",
+    "in": "header",
+    "required": false,
+    "desc": ""
+   }
+  ],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_list_custom_link_sessions",
+  "method": "GET",
+  "path": "/api/v1/custom-links/{link_id}/sessions",
+  "summary": "List Custom Link sessions",
+  "desc": "Return paginated session references and observed lifecycle timestamps for one Custom Link. Transcript content and visitor identifiers are not included.",
+  "tag": "Custom Links",
+  "params": [
+   {
+    "name": "link_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link UUID."
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_regenerate_custom_link_thumbnail",
+  "method": "POST",
+  "path": "/api/v1/custom-links/{link_id}/thumbnail-jobs",
+  "summary": "Regenerate a thumbnail",
+  "desc": "Create an asynchronous job that regenerates this Custom Link's thumbnail. Requires an `Idempotency-Key` header.",
+  "tag": "Custom Links",
+  "params": [
+   {
+    "name": "link_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link UUID."
+   },
+   {
+    "name": "Idempotency-Key",
+    "in": "header",
+    "required": true,
+    "desc": ""
+   }
+  ],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_list_custom_link_jobs",
+  "method": "GET",
+  "path": "/api/v1/custom-link-jobs",
+  "summary": "List Custom Link jobs",
+  "desc": "Return durable Custom Link job history, newest first.",
+  "tag": "Custom Link Jobs",
+  "params": [
+   {
+    "name": "status",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "campaign_id",
+    "in": "query",
+    "required": false,
+    "desc": "Custom Link campaign UUID."
+   },
+   {
+    "name": "date_from",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "date_to",
+    "in": "query",
+    "required": false,
+    "desc": ""
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_custom_link_job",
+  "method": "GET",
+  "path": "/api/v1/custom-link-jobs/{job_id}",
+  "summary": "Poll a Custom Link job",
+  "desc": "Return lightweight status and counters. Send `If-None-Match` with the previous ETag to receive `304 Not Modified` when unchanged.",
+  "tag": "Custom Link Jobs",
+  "params": [
+   {
+    "name": "job_id",
+    "in": "path",
+    "required": true,
+    "desc": "Asynchronous job UUID."
+   },
+   {
+    "name": "If-None-Match",
+    "in": "header",
+    "required": false,
+    "desc": ""
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_list_custom_link_job_items",
+  "method": "GET",
+  "path": "/api/v1/custom-link-jobs/{job_id}/items",
+  "summary": "List Custom Link job items",
+  "desc": "Return paginated per-link creation, logo and thumbnail outcomes in deterministic input order, including `logoStatus`, `prospectLogoUrl`, and `shareThumbnailUrl` from the current persisted link. Wait for the job to finish and inspect warnings before using the p",
+  "tag": "Custom Link Jobs",
+  "params": [
+   {
+    "name": "job_id",
+    "in": "path",
+    "required": true,
+    "desc": "Asynchronous job UUID."
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_cancel_custom_link_job",
+  "method": "POST",
+  "path": "/api/v1/custom-link-jobs/{job_id}/cancel",
+  "summary": "Cancel a Custom Link job",
+  "desc": "Request cancellation of unfinished items. Completed work and consumed quota are retained.",
+  "tag": "Custom Link Jobs",
+  "params": [
+   {
+    "name": "job_id",
+    "in": "path",
+    "required": true,
+    "desc": "Asynchronous job UUID."
+   }
+  ],
+  "body": false,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_retry_custom_link_job",
+  "method": "POST",
+  "path": "/api/v1/custom-link-jobs/{job_id}/retry",
+  "summary": "Retry Custom Link job items",
+  "desc": "Create a child job for failed or selected items. Explicit thumbnail retries consume new render units and require an `Idempotency-Key` header.",
+  "tag": "Custom Link Jobs",
+  "params": [
+   {
+    "name": "job_id",
+    "in": "path",
+    "required": true,
+    "desc": "Asynchronous job UUID."
+   },
+   {
+    "name": "Idempotency-Key",
+    "in": "header",
+    "required": true,
+    "desc": ""
+   }
+  ],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_list_custom_link_campaigns",
+  "method": "GET",
+  "path": "/api/v1/custom-link-campaigns",
+  "summary": "List Custom Link campaigns",
+  "desc": "Return campaigns available to the key's organization.",
+  "tag": "Custom Link Campaigns",
+  "params": [],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_create_custom_link_campaign",
+  "method": "POST",
+  "path": "/api/v1/custom-link-campaigns",
+  "summary": "Create a Custom Link campaign",
+  "desc": "Create a campaign backed by a context-pack folder.",
+  "tag": "Custom Link Campaigns",
+  "params": [],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_get_custom_link_campaign",
+  "method": "GET",
+  "path": "/api/v1/custom-link-campaigns/{campaign_id}",
+  "summary": "Retrieve a Custom Link campaign",
+  "desc": "Return one campaign and its Custom Link count.",
+  "tag": "Custom Link Campaigns",
+  "params": [
+   {
+    "name": "campaign_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link campaign UUID."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_update_custom_link_campaign",
+  "method": "PATCH",
+  "path": "/api/v1/custom-link-campaigns/{campaign_id}",
+  "summary": "Update a Custom Link campaign",
+  "desc": "Rename a campaign.",
+  "tag": "Custom Link Campaigns",
+  "params": [
+   {
+    "name": "campaign_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link campaign UUID."
+   }
+  ],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_delete_custom_link_campaign",
+  "method": "DELETE",
+  "path": "/api/v1/custom-link-campaigns/{campaign_id}",
+  "summary": "Delete a Custom Link campaign",
+  "desc": "Delete a campaign and unfile its Custom Links without deleting them.",
+  "tag": "Custom Link Campaigns",
+  "params": [
+   {
+    "name": "campaign_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link campaign UUID."
+   }
+  ],
+  "body": false,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_get_custom_link_campaign_engagement",
+  "method": "GET",
+  "path": "/api/v1/custom-link-campaigns/{campaign_id}/engagement",
+  "summary": "Retrieve campaign engagement",
+  "desc": "Return raw generated-link, Opened, Started, Engaged, lead, meeting, visitor, page-view, session, and bot-only counts. Generated links are not a delivered-send denominator.",
+  "tag": "Custom Link Campaigns",
+  "params": [
+   {
+    "name": "campaign_id",
+    "in": "path",
+    "required": true,
+    "desc": "Custom Link campaign UUID."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_playbook",
+  "method": "GET",
+  "path": "/api/v1/playbook",
+  "summary": "Retrieve the Playbook",
+  "desc": "Return structured staging and production Playbooks, section metadata, exact staging ETag and versions, and canonical agent links. Every Playbook response names the Role it acted on: the public API acts on the organization's default Role. Legacy Playbooks remai",
+  "tag": "Playbook",
+  "params": [],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_preview_playbook_update",
+  "method": "POST",
+  "path": "/api/v1/playbook/update-previews",
+  "summary": "Preview a Playbook update",
+  "desc": "Validate restricted JSON Patch operations against a clone of staging and return a deterministic before/after summary. This endpoint never changes staging. Previews expire after 24 hours.",
+  "tag": "Playbook",
+  "params": [],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_apply_playbook_update",
+  "method": "POST",
+  "path": "/api/v1/playbook/update-previews/{preview_id}/apply",
+  "summary": "Apply a Playbook update preview",
+  "desc": "Apply an unexpired preview created by the same API key to staging. Staging drift fails without creating a version; repeated applies return the original result.",
+  "tag": "Playbook",
+  "params": [
+   {
+    "name": "preview_id",
+    "in": "path",
+    "required": true,
+    "desc": "Playbook update preview UUID."
+   }
+  ],
+  "body": false,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_list_playbook_suggestions",
+  "method": "GET",
+  "path": "/api/v1/playbook/suggestions",
+  "summary": "List Playbook suggestions",
+  "desc": "Return ready Hobbes-generated groups whose changes all target Playbook sections, including evidence and exact proposed payloads.",
+  "tag": "Playbook",
+  "params": [],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_apply_playbook_suggestions",
+  "method": "POST",
+  "path": "/api/v1/playbook/suggestions/{group_id}/apply",
+  "summary": "Apply Playbook suggestions",
+  "desc": "Apply selected stored suggestion payloads exactly as generated, with generation-revision and ETag concurrency checks.",
+  "tag": "Playbook",
+  "params": [
+   {
+    "name": "group_id",
+    "in": "path",
+    "required": true,
+    "desc": "Playbook suggestion group UUID."
+   }
+  ],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_create_agent_publish_job",
+  "method": "POST",
+  "path": "/api/v1/agent/publish-jobs",
+  "summary": "Queue an agent publish",
+  "desc": "Queue the exact current staging version for production publishing. Set confirmation to `publish_to_production`; Hobbes runs the existing conversation-test gate before changing production.",
+  "tag": "Agent Publishing",
+  "params": [],
+  "body": true,
+  "mutating": true
+ },
+ {
+  "name": "hobbes_v1_get_agent_publish_job",
+  "method": "GET",
+  "path": "/api/v1/agent/publish-jobs/{job_id}",
+  "summary": "Poll an agent publish job",
+  "desc": "Return queued, running, succeeded, or failed status, a safe failure reason, and the canonical production link after success.",
+  "tag": "Agent Publishing",
+  "params": [
+   {
+    "name": "job_id",
+    "in": "path",
+    "required": true,
+    "desc": "Asynchronous job UUID."
+   },
+   {
+    "name": "If-None-Match",
+    "in": "header",
+    "required": false,
+    "desc": ""
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_list_sessions",
+  "method": "GET",
+  "path": "/api/v1/sessions",
+  "summary": "List sessions",
+  "desc": "Return analyzed production sessions, newest first. Combine filters to find qualified, high-intent, or booked sessions.",
+  "tag": "Sessions",
+  "params": [
+   {
+    "name": "date_from",
+    "in": "query",
+    "required": false,
+    "desc": "Filter by session start time (ISO 8601)"
+   },
+   {
+    "name": "date_to",
+    "in": "query",
+    "required": false,
+    "desc": "Filter by session start time (ISO 8601)"
+   },
+   {
+    "name": "qualification_status",
+    "in": "query",
+    "required": false,
+    "desc": "qualified | unqualified (comma-separated)"
+   },
+   {
+    "name": "buying_intent",
+    "in": "query",
+    "required": false,
+    "desc": "high | medium | low | none (comma-separated)"
+   },
+   {
+    "name": "booked_status",
+    "in": "query",
+    "required": false,
+    "desc": "booked | not_booked (comma-separated)"
+   },
+   {
+    "name": "search",
+    "in": "query",
+    "required": false,
+    "desc": "Partial email match"
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_session",
+  "method": "GET",
+  "path": "/api/v1/sessions/{session_id}",
+  "summary": "Retrieve a session",
+  "desc": "Return one analyzed session with qualification, conversation milestones, Custom Link lifecycle, topics, objections, tracking, and next steps.",
+  "tag": "Sessions",
+  "params": [
+   {
+    "name": "session_id",
+    "in": "path",
+    "required": true,
+    "desc": "Hobbes session UUID."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_session_transcript",
+  "method": "GET",
+  "path": "/api/v1/sessions/{session_id}/transcript",
+  "summary": "Retrieve a session transcript",
+  "desc": "Return the ordered conversation transcript. Requires `transcripts:read` and counts against the 2,000-read daily organization quota.",
+  "tag": "Sessions",
+  "params": [
+   {
+    "name": "session_id",
+    "in": "path",
+    "required": true,
+    "desc": "Hobbes session UUID."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_list_people",
+  "method": "GET",
+  "path": "/api/v1/people",
+  "summary": "List people",
+  "desc": "Return prospect profiles aggregated across sessions, ordered by most recently seen.",
+  "tag": "People",
+  "params": [
+   {
+    "name": "search",
+    "in": "query",
+    "required": false,
+    "desc": "Partial email match"
+   },
+   {
+    "name": "buying_intent",
+    "in": "query",
+    "required": false,
+    "desc": "high | medium | low | none (comma-separated)"
+   },
+   {
+    "name": "qualification_status",
+    "in": "query",
+    "required": false,
+    "desc": "qualified | unqualified (comma-separated)"
+   },
+   {
+    "name": "date_from",
+    "in": "query",
+    "required": false,
+    "desc": "Filter by last seen (ISO 8601)"
+   },
+   {
+    "name": "date_to",
+    "in": "query",
+    "required": false,
+    "desc": "Filter by last seen (ISO 8601)"
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_person",
+  "method": "GET",
+  "path": "/api/v1/people/{email}",
+  "summary": "Retrieve a person",
+  "desc": "Return one prospect profile by exact email address. URL-encode the email when constructing the request path.",
+  "tag": "People",
+  "params": [
+   {
+    "name": "email",
+    "in": "path",
+    "required": true,
+    "desc": "Exact prospect email address. URL-encode reserved characters."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_list_accounts",
+  "method": "GET",
+  "path": "/api/v1/accounts",
+  "summary": "List accounts",
+  "desc": "Return B2B account rollups by registrable email domain, ordered by most recently seen.",
+  "tag": "Accounts",
+  "params": [
+   {
+    "name": "search",
+    "in": "query",
+    "required": false,
+    "desc": "Partial domain match"
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_account",
+  "method": "GET",
+  "path": "/api/v1/accounts/{domain}",
+  "summary": "Retrieve an account",
+  "desc": "Return one account rollup by registrable domain, such as `acme.example`.",
+  "tag": "Accounts",
+  "params": [
+   {
+    "name": "domain",
+    "in": "path",
+    "required": true,
+    "desc": "Registrable account domain, such as `acme.example`."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_get_metrics",
+  "method": "GET",
+  "path": "/api/v1/metrics",
+  "summary": "Retrieve funnel metrics",
+  "desc": "Return aggregate session, qualification, booking, intent, duration, and source metrics for a trailing 1-365 day window.",
+  "tag": "Metrics",
+  "params": [
+   {
+    "name": "days",
+    "in": "query",
+    "required": false,
+    "desc": "Trailing number of UTC days to aggregate. Defaults to 30 and accepts 1-365."
+   }
+  ],
+  "body": false,
+  "mutating": false
+ },
+ {
+  "name": "hobbes_v1_list_funnel_events",
+  "method": "GET",
+  "path": "/api/v1/funnel-events",
+  "summary": "List top-of-funnel events",
+  "desc": "Return paginated, pseudonymous action-click and lead-submission events for exact pre-email drop-off reporting.",
+  "tag": "Metrics",
+  "params": [
+   {
+    "name": "date_from",
+    "in": "query",
+    "required": false,
+    "desc": "Filter by event time (ISO 8601)"
+   },
+   {
+    "name": "date_to",
+    "in": "query",
+    "required": false,
+    "desc": "Filter by event time (ISO 8601)"
+   },
+   {
+    "name": "limit",
+    "in": "query",
+    "required": false,
+    "desc": "Number of records to return. Defaults to 50 and cannot exceed 200."
+   },
+   {
+    "name": "offset",
+    "in": "query",
+    "required": false,
+    "desc": "Zero-based number of records to skip. Use with `pagination.total` to request the next page"
+   }
+  ],
+  "body": false,
+  "mutating": false
+ }
+]
