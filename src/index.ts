@@ -15,6 +15,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { evaluate, sessionLimitFromEnv } from "./policy.js";
+import { mcpError, categoryForStatus } from "./errors.js";
 
 interface GenTool {
   name: string;
@@ -65,7 +66,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 
 server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const t = SPEC.find((x) => x.name === req.params.name);
-  if (!t) return { isError: true, content: [{ type: "text", text: `Unknown tool: ${req.params.name}` }] };
+  if (!t) return mcpError("validation", `Unknown tool: ${req.params.name}`);
   const args = (req.params.arguments ?? {}) as Record<string, unknown>;
 
   const decision = evaluate({
@@ -78,9 +79,12 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     sessionLimit,
   });
   if (decision.verdict === "refuse")
-    return { isError: true, content: [{ type: "text", text: `Refused by policy: ${decision.reason}` }] };
+    return mcpError("permission", `Refused by policy: ${decision.reason}`, { policy: "refuse" });
   if (decision.verdict === "escalate")
-    return { isError: true, content: [{ type: "text", text: `Needs human approval: ${decision.prompt}` }] };
+    return mcpError("permission", `Needs human approval: ${decision.prompt}`, {
+      policy: "escalate",
+      requiresHumanApproval: true,
+    });
 
   // Build the URL: path params substituted, query params appended.
   let path = t.path;
@@ -110,7 +114,10 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const text = await res.text();
   if (!res.ok) {
     const hint = res.status === 401 ? " Set HOBBES_API_KEY (an hb_live_ key)." : "";
-    return { isError: true, content: [{ type: "text", text: `Hobbes ${res.status}: ${text.slice(0, 400)}${hint}` }] };
+    return mcpError(categoryForStatus(res.status), `Hobbes ${res.status}: ${text.slice(0, 400)}${hint}`, {
+      httpStatus: res.status,
+      operation: `${t.method} ${t.path}`,
+    });
   }
   if (t.mutating) sessionMutations++;
   return { content: [{ type: "text", text: text || "(empty response)" }] };
